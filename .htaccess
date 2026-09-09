@@ -1,0 +1,22 @@
+RewriteEngine On
+
+DirectoryIndex index.php
+
+# Block direct access to includes, sql dumps and markdown
+<IfModule mod_authz_core.c>
+    <FilesMatch "\.(sql|md|phps)$">
+        Require all denied
+    </FilesMatch>
+    RedirectMatch 403 ^/?includes/.*$
+    RedirectMatch 403 ^/?schema\.sql$
+</IfModule>
+<IfModule !mod_authz_core.c>
+    <FilesMatch "\.(sql|md|phps)$">
+        Order allow,deny
+        Deny from all
+    </FilesMatch>
+</IfModule>
+
+# Block install.php once installation is complete (.installed lock file exists)
+RewriteCond %{DOCUMENT_ROOT}/.installed -f
+RewriteRule ^install\.php$ - [F,L]
